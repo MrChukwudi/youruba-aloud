@@ -919,3 +919,31 @@ hr {
 .mim {
   width: 5%;
 }
+
+.dew {
+  justify-content: space-between;
+}
+
+
+/* Styling my Scroll Div dynamic elements */
+.map-dtn-div {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 15px;
+}
+
+.list-btn {
+  width: 35%;
+  border-radius: 15px;
+}
+
+.map-name {
+  text-align: center;
+}
+
+.map-img {
+  height: 400px;
+  width: auto;
+}
+
+/* End of Scroll Div dyanmic element styling */
