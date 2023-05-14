@@ -642,7 +642,160 @@ function closeModalMode() {
   subCatModal.style.display = "none";
 }
 
+function upDateAdmin(event) {
+  event.preventDefault();
+
+  const getSpin = document.querySelector(".spin2");
+  getSpin.style.display = "inline-block";
+
+  const upName = document.getElementById("updateName").value;
+  const upEmail = document.getElementById("updateEmail").value;
+
+  if (upName === "" || upEmail === "") {
+    Swal.fire({
+      icon: "success",
+      text: "All fields are required",
+      confirmButtonColor: "#2D85DE",
+    });
+    getSpin.style.display = "none";
+  } else {
+    // get token
+    const getToken = localStorage.getItem("adminLogData");
+    const theToken = JSON.parse(getToken);
+    const token = theToken.token;
+
+    // authorization
+    const dashHeader = new Headers();
+    dashHeader.append("Authorization", `Bearer ${token}`);
+
+    const adData = new FormData();
+    adData.append("name", upName);
+    adData.append("email", upEmail);
+
+    const adReq = {
+      method: "POST",
+      headers: dashHeader,
+      body: adData,
+    };
+
+    const url = `https://pluralcodesandbox.com/yorubalearning/api/admin/admin_update_profile`;
+
+    fetch(url, adReq)
+      .then((response) => response.json())
+      .then((result) => {
+        console.log(result);
+        if (result.status === "success") {
+          Swal.fire({
+            icon: "success",
+            text: `${result.message}`,
+            confirmButtonColor: "#2D85DE",
+          });
+
+          setTimeout(() => {
+            location.href = "index.html";
+          }, 3000);
+        } else {
+          Swal.fire({
+            icon: "info",
+            text: `${result.message}`,
+            confirmButtonColor: "#2D85DE",
+          });
+          getSpin.style.display = "none";
+        }
+      })
+      .catch((error) => console.log("error", error));
+  }
+}
+
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<Missed Classes Ended Here>>>>>>>>>>>>>>>>>>>>>
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<Admin Change Password Starts Here>>>>>>>>>>>>>>>>>>>>>
+
+const upPassBtn = document.getElementById("dButton");
+
+
+
+function updatePassword(event) {
+  event.preventDefault();
+
+  let curEmail = document.getElementById("updatePassEmail").value;
+  let upPass = document.getElementById("updatePassword").value;
+  let upConfPass = document.getElementById("confirmPassword").value;
+
+  // Ading the spinner to the button
+  let spinner = document.querySelector(".spin");
+  spinner.style.display = "inline-block";
+
+  // Getting the Local Storage variables needed
+  let adminLog = localStorage.getItem("adminLogData");
+  let logData = JSON.parse(adminLog);
+  let baseEmail = logData.email;
+  let token = logData.token;
+
+  // Validations:
+  if (curEmail !== baseEmail) {
+    Swal.fire({
+      icon: "info",
+      text: "Please enter correct Email",
+      confirmButtonColor: "red",
+    });
+  }
+  if (upPass !== upConfPass) {
+    Swal.fire({
+      icon: "info",
+      text: "Please Enter Matching Passwords",
+      confirmButtonColor: "red",
+    });
+
+    // Make my API call
+  } else {
+    let reqHeader = new Headers();
+    reqHeader.append("Authorization", `Bearer ${token}`);
+    let reqBody = new FormData();
+    reqBody.append("email", baseEmail);
+    reqBody.append("password", upPass);
+    reqBody.append("password_confirmation", upConfPass);
+
+    let reqOption = {
+      method: "POST",
+      body: reqBody,
+      headers: reqHeader,
+    };
+
+    const url = `https://pluralcodesandbox.com/yorubalearning/api/admin/admin_update_password`;
+
+    fetch(url, reqOption)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        if (data.status !== "success") {
+          Swal.fire({
+            icon: "info",
+            text: `${data.message}`,
+            confirmButtonColor: "red",
+          });
+        } else {
+          Swal.fire({
+            icon: "success",
+            text: `${data.message}`,
+            confirmButtonColor: "Green",
+          });
+          setTimeout(() => {
+            location.href = `index.html`;
+          }, 300);
+        }
+
+        spinner.style.display = "none";
+      })
+      .catch((error) => [error.message, error.stack]);
+
+    spinner.style.display = "none";
+  }
+}
+
+upPassBtn.addEventListener("click", updatePassword);
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<Admin Change Password Ended Here>>>>>>>>>>>>>>>>>>>>>
 
 //Logout functionality
 
