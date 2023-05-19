@@ -160,7 +160,6 @@ function dashboardApi() {
   fetch(url, dashReq)
     .then((response) => response.json())
     .then((result) => {
-      console.log(result);
       const adminID = document.getElementById("adminID");
       const category = document.getElementById("category");
       const learnMat = document.getElementById("learnmat");
@@ -281,7 +280,6 @@ function getAllStudents() {
   fetch(url, dashReq)
     .then((response) => response.json())
     .then((result) => {
-      console.log(result);
       const tableDetails = document.getElementById("table-id");
 
       if (result.length === 0) {
@@ -391,8 +389,6 @@ function categoryList() {
   fetch(url, dashReq)
     .then((response) => response.json())
     .then((result) => {
-      console.log(result);
-
       if (result.length === 0) {
         //This is the where we handle case where the API response was empty.
         catList.innerHTML = "No Records Found";
@@ -405,7 +401,7 @@ function categoryList() {
           <p class="map-name" >${item.name}</p>
           <div class="map-dtn-div">
           <button onclick="updateCat(${item.id})" class="btn-primary list-btn">Update</button>
-          <button onclick="deleteCat(${item.id}" class="btn-primary list-btn"> Delete</button>
+          <button onclick="deleteCat(${item.id})" class="btn-primary list-btn"> Delete</button>
           </div>
           </div>
           `;
@@ -415,6 +411,49 @@ function categoryList() {
     })
     .catch((error) => console.log("error", error));
 }
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<Delete Category>>>>>>>>>>>>>>>>>>>>>
+
+function deleteCat(id) {
+  let myToken = localStorage.getItem("adminLogData");
+  let token = JSON.parse(myToken).token;
+
+  let uri =
+    `https://pluralcodesandbox.com/yorubalearning/api/admin/delete_category/` +
+    `${id}`;
+  let headers = new Headers({ Authorization: `Bearer ${token}` });
+
+  let options = {
+    method: "GET",
+    headers: headers,
+    redirect: "follow",
+  };
+
+  fetch(uri, options)
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+      if (data.status === "success") {
+        Swal.fire({
+          icon: "success",
+          text: `${data.message}`,
+          confirmButtonColor: "green",
+        });
+        setTimeout(() => {
+          location.reload();
+        }, 4000);
+      } else {
+        Swal.fire({
+          icon: "info",
+          text: `delete was Unsuccessful`,
+          confirmButtonColor: "red",
+        });
+      }
+    })
+    .catch((error) => (error.message, error));
+}
+
+// <<<<<<<<<<<<<<<End of Delete Category>>>>>>>>>>>>>>>>>>>>>>>
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<Missed Classes Started Here>>>>>>>>>>>>>>>>>>>>>
 // <<<<<<<<<<<<<<<Function for SubCategory creation>>>>>>>>>>>>>>>>>>>>>>>
@@ -711,13 +750,10 @@ function upDateAdmin(event) {
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<Admin Change Password Starts Here>>>>>>>>>>>>>>>>>>>>>
 
-const upPassBtn = document.getElementById("dButton");
-
-
-
 function updatePassword(event) {
   event.preventDefault();
 
+  const upPassBtn = document.getElementById("dButton");
   let curEmail = document.getElementById("updatePassEmail").value;
   let upPass = document.getElementById("updatePassword").value;
   let upConfPass = document.getElementById("confirmPassword").value;
@@ -791,9 +827,9 @@ function updatePassword(event) {
 
     spinner.style.display = "none";
   }
-}
 
-upPassBtn.addEventListener("click", updatePassword);
+  upPassBtn.addEventListener("click", updatePassword);
+}
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<Admin Change Password Ended Here>>>>>>>>>>>>>>>>>>>>>
 
