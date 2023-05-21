@@ -400,7 +400,7 @@ function categoryList() {
           <a href="details.html?name=${item.name}&&id=${item.id}"><img class="map-img" src=${item.image}> </a>
           <p class="map-name" >${item.name}</p>
           <div class="map-dtn-div">
-          <button onclick="updateCat(${item.id})" class="btn-primary list-btn">Update</button>
+          <button onclick="revealUpdateCatForm(${item.id})" class="btn-primary list-btn">Update</button>
           <button onclick="deleteCat(${item.id})" class="btn-primary list-btn"> Delete</button>
           </div>
           </div>
@@ -412,6 +412,127 @@ function categoryList() {
     .catch((error) => console.log("error", error));
 }
 
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<Start of Update Category Logic>>>>>>>>>>>>>>>>>>>>>
+
+function revealUpdateCatForm(itemId) {
+  localStorage.setItem("itemId", itemId);
+
+  const revealModal = document.getElementById("my-modal3");
+  revealModal.style.display = "block";
+
+  let myToken = localStorage.getItem("adminLogData");
+  let token = JSON.parse(myToken).token;
+  console.log("token: " + token);
+
+  let prefHeader = new Headers();
+  prefHeader.append("Authorization", `Bearer  ${token}`);
+
+  let options = {
+    method: "GET",
+    headers: prefHeader,
+  };
+
+  let uri =
+    `https://pluralcodesandbox.com/yorubalearning/api/admin/get_details?category_id=` +
+    `${itemId}`;
+
+  fetch(uri, options)
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+      let updateCatName = document.getElementById("updateName");
+      let updateCatImg = document.getElementById("updateNameImage");
+
+      updateCatName.setAttribute("value", `${data.name}`);
+      updateCatImg.setAttribute("value", `${data.image}`);
+    })
+    .catch((error) => error.message);
+}
+
+function closeModal3() {
+  const revealModal = document.getElementById("my-modal3");
+  revealModal.style.display = "none";
+}
+
+function chooseImg(event) {
+  event.preventDefault();
+  let innactiveNameDiv = document.querySelector(".getWrapp");
+  let activeNameDiv = document.querySelector(".wrapper");
+
+  innactiveNameDiv.style.display = "none";
+  activeNameDiv.style.display = "block";
+}
+
+function updateCategory(event) {
+  event.preventDefault();
+
+  let updateCatName = document.getElementById("updateName").value;
+  let updateCatImg2 = document.getElementById("updateImage").files[0];
+  let updateCatImg1 = document.getElementById("updateNameImage").value;
+
+  let spinner = document.querySelector(".spin2");
+  spinner.style.display = "inline-block";
+
+  if (updateCatName === "" || updateCatImg1 === "") {
+    Swal.fire({
+      icon: "info",
+      text: `All fields are required`,
+      confirmButtonColor: "red",
+    });
+
+    spinner.style.display = "none";
+  } else {
+    let myToken = localStorage.getItem("adminLogData");
+    let token = JSON.parse(myToken).token;
+    console.log("token: " + token);
+
+    let myItemId = localStorage.getItem("itemId");
+
+    let prefHeader = new Headers();
+    prefHeader.append("Authorization", `Bearer  ${token}`);
+
+    let formData = new FormData();
+    formData.append("name", updateCatName);
+    formData.append("image", updateCatImg2);
+    formData.append("category_id", myItemId);
+
+    let options = {
+      method: "POST",
+      headers: prefHeader,
+      body: formData,
+    };
+
+    let uri = `https://pluralcodesandbox.com/yorubalearning/api/admin/update_category`;
+
+    spinner.style.display = "none";
+    fetch(uri, options)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        if (data.status === "success") {
+          Swal.fire({
+            icon: "success",
+            text: data.message,
+            confirmButtonColor: "green",
+          });
+
+          setTimeout(() => {
+            location.reload();
+          }, 4000);
+        } else {
+          Swal.fire({
+            icon: "info",
+            text: data.message.image,
+            confirmButtonColor: "red",
+          });
+        }
+      })
+      .catch((error) => error.message);
+  }
+}
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<End of Update Category Logic>>>>>>>>>>>>>>>>>>>>>
+
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<Delete Category>>>>>>>>>>>>>>>>>>>>>
 
 function deleteCat(id) {
@@ -421,7 +542,8 @@ function deleteCat(id) {
   let uri =
     `https://pluralcodesandbox.com/yorubalearning/api/admin/delete_category/` +
     `${id}`;
-  let headers = new Headers({ Authorization: `Bearer ${token}` });
+  let headers = new Headers();
+  headers.append("Authorization", `Bearer ${token}`);
 
   let options = {
     method: "GET",
